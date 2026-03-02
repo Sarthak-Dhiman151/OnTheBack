@@ -46,7 +46,7 @@ export default function Menu({ onStart }: MenuProps) {
         transition={{ duration: 0.8 }}
         className="text-center mb-12"
       >
-        <h1 className="text-7xl md:text-9xl font-serif italic text-stone-800 dark:text-stone-100 mb-4 tracking-tighter">
+        <h1 className="text-6xl md:text-9xl font-serif italic text-stone-800 dark:text-stone-100 mb-4 tracking-tighter">
           On the Back
         </h1>
         <p className="text-xl md:text-2xl text-stone-500 dark:text-stone-400 font-hand rotate-[-2deg]">
@@ -55,29 +55,29 @@ export default function Menu({ onStart }: MenuProps) {
       </motion.div>
 
       {/* Mode Switcher */}
-      <div className="flex flex-col items-center gap-6 mb-12">
-        <div className="bg-stone-50 dark:bg-stone-800 p-1.5 rounded-full shadow-sm border border-stone-300 dark:border-stone-600 flex gap-2">
+      <div className="flex flex-col items-center gap-4 md:gap-6 mb-8 md:mb-12">
+        <div className="bg-stone-50 dark:bg-stone-800 p-1 md:p-1.5 rounded-full shadow-sm border border-stone-300 dark:border-stone-600 flex gap-1 md:gap-2">
             <button 
                 onClick={() => setMode('local')}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                className={`px-4 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all flex items-center gap-2 ${
                     mode === 'local' 
                     ? 'bg-stone-800 dark:bg-stone-100 text-stone-50 dark:text-stone-800 shadow-md' 
                     : 'text-stone-500 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
                 }`}
             >
-                <Users size={16} />
-                Local Play
+                <Users size={14} className="md:w-4 md:h-4" />
+                Local
             </button>
             <button 
                 onClick={() => setMode('online')}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                className={`px-4 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all flex items-center gap-2 ${
                     mode === 'online' 
                     ? 'bg-stone-800 dark:bg-stone-100 text-stone-50 dark:text-stone-800 shadow-md' 
                     : 'text-stone-500 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
                 }`}
             >
-                <Globe size={16} />
-                Online Multiplayer
+                <Globe size={14} className="md:w-4 md:h-4" />
+                Online
             </button>
         </div>
 
@@ -171,24 +171,24 @@ export default function Menu({ onStart }: MenuProps) {
             <motion.div 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-600 rounded-2xl p-8 shadow-sm max-w-lg mx-auto"
+                className="bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-600 rounded-2xl p-6 md:p-8 shadow-sm max-w-lg mx-auto"
             >
-                <div className="flex flex-col items-center gap-8">
-                <div className="flex items-center gap-8">
+                <div className="flex flex-col items-center gap-6 md:gap-8">
+                <div className="flex items-center gap-6 md:gap-8">
                     <div className="flex flex-col items-center gap-2">
                     <label className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase tracking-widest">Rows</label>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
                         <button onClick={() => setCustomRows(Math.max(2, customRows - 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">-</button>
-                        <span className="font-serif text-2xl w-8 text-center text-stone-800 dark:text-stone-100">{customRows}</span>
+                        <span className="font-serif text-xl md:text-2xl w-6 md:w-8 text-center text-stone-800 dark:text-stone-100">{customRows}</span>
                         <button onClick={() => setCustomRows(Math.min(12, customRows + 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">+</button>
                     </div>
                     </div>
-                    <span className="text-stone-300 dark:text-stone-600 text-4xl font-light">×</span>
+                    <span className="text-stone-300 dark:text-stone-600 text-3xl md:text-4xl font-light">×</span>
                     <div className="flex flex-col items-center gap-2">
                     <label className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase tracking-widest">Cols</label>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
                         <button onClick={() => setCustomCols(Math.max(2, customCols - 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">-</button>
-                        <span className="font-serif text-2xl w-8 text-center text-stone-800 dark:text-stone-100">{customCols}</span>
+                        <span className="font-serif text-xl md:text-2xl w-6 md:w-8 text-center text-stone-800 dark:text-stone-100">{customCols}</span>
                         <button onClick={() => setCustomCols(Math.min(12, customCols + 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">+</button>
                     </div>
                     </div>

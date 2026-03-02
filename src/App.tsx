@@ -148,19 +148,19 @@ export default function App() {
   return (
     <div className="min-h-screen font-sans">
       {/* Header / Nav */}
-      <header className="fixed top-0 left-0 right-0 p-6 flex justify-between items-center z-50 pointer-events-none">
+      <header className="fixed top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-50 pointer-events-none">
         <div className="pointer-events-auto cursor-pointer flex items-center gap-2" onClick={gameState === 'hub' ? undefined : handleBackToHub}>
           {gameState !== 'hub' && (
             <div className="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 border border-stone-300 dark:border-stone-600 flex items-center justify-center hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors shadow-sm text-stone-700 dark:text-stone-200">
               <ArrowLeft size={16} />
             </div>
           )}
-          <span className="font-serif italic text-xl font-bold tracking-tight text-stone-800 dark:text-stone-100">On the Back</span>
+          <span className="font-serif italic text-lg md:text-xl font-bold tracking-tight text-stone-800 dark:text-stone-100">On the Back</span>
         </div>
         
-        <div className="flex items-center gap-4 pointer-events-auto">
+        <div className="flex items-center gap-3 md:gap-4 pointer-events-auto">
           {gameState === 'playing' && (
-            <div className="font-mono text-xs text-stone-500 dark:text-stone-400 uppercase tracking-widest">
+            <div className="hidden sm:block font-mono text-[10px] md:text-xs text-stone-500 dark:text-stone-400 uppercase tracking-widest">
               {currentGridConfig.name}
             </div>
           )}
@@ -174,7 +174,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="w-full min-h-screen flex flex-col items-center justify-center p-4 pt-20">
+      <main className="w-full min-h-screen flex flex-col items-center justify-center p-2 md:p-4 pt-16 md:pt-20">
         <AnimatePresence mode="wait">
           {gameState === 'hub' ? (
             <motion.div 

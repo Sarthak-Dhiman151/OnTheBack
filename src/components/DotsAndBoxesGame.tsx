@@ -121,7 +121,7 @@ export default function DotsAndBoxesGame({
     canvas.height = canvasSize.height * dpr;
     ctx.scale(dpr, dpr);
 
-    const padding = 40;
+    const padding = canvasSize.width < 480 ? 20 : 40;
     const availWidth = canvasSize.width - padding * 2;
     const availHeight = canvasSize.height - padding * 2;
     
@@ -243,7 +243,7 @@ export default function DotsAndBoxesGame({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const padding = 40;
+    const padding = canvasSize.width < 480 ? 20 : 40;
     const availWidth = canvasSize.width - padding * 2;
     const availHeight = canvasSize.height - padding * 2;
     const spacingX = availWidth / (gridConfig.cols - 1);
@@ -272,7 +272,8 @@ export default function DotsAndBoxesGame({
 
     const minDist = Math.min(distTop, distBottom, distLeft, distRight);
     
-    if (minDist > 0.3) {
+    const threshold = canvasSize.width < 480 ? 0.4 : 0.3;
+    if (minDist > threshold) {
       setHoveredLine(null);
       return;
     }
@@ -397,18 +398,18 @@ export default function DotsAndBoxesGame({
   }
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center py-8 px-4 gap-6">
+    <div className="relative w-full h-full flex flex-col items-center justify-center py-4 md:py-8 px-2 md:px-4 gap-4 md:gap-6">
       {/* Scoreboard */}
-      <div className="flex justify-center gap-8 w-full max-w-2xl flex-wrap">
+      <div className="flex justify-center gap-4 md:gap-8 w-full max-w-2xl flex-wrap">
         {Array.from({ length: playerCount }).map((_, i) => {
             const pId = i + 1;
             const pColor = PLAYER_COLORS[pId as keyof typeof PLAYER_COLORS];
             return (
-                <div key={pId} className={`flex flex-col items-center transition-all duration-300 ${currentPlayer === pId ? 'opacity-100 scale-110' : 'opacity-50 scale-90'}`}>
-                    <span className={`${pColor.color} font-bold text-sm uppercase tracking-widest mb-1`}>
+                <div key={pId} className={`flex flex-col items-center transition-all duration-300 ${currentPlayer === pId ? 'opacity-100 scale-105 md:scale-110' : 'opacity-50 scale-90'}`}>
+                    <span className={`${pColor.color} font-bold text-[10px] md:text-sm uppercase tracking-widest mb-0.5 md:mb-1`}>
                         {isOnline && playerId === pId ? `You (P${pId})` : `Player ${pId}`}
                     </span>
-                    <span className="text-4xl md:text-5xl font-serif text-stone-800 dark:text-stone-100">{scores[pId] || 0}</span>
+                    <span className="text-3xl md:text-5xl font-serif text-stone-800 dark:text-stone-100">{scores[pId] || 0}</span>
                 </div>
             );
         })}
@@ -430,7 +431,7 @@ export default function DotsAndBoxesGame({
 
       <div 
         ref={containerRef} 
-        className="relative w-full max-w-2xl aspect-square bg-stone-50 dark:bg-stone-900 shadow-xl rounded-3xl overflow-hidden border-4 border-stone-700 dark:border-stone-400"
+        className="relative w-full max-w-[min(90vw,500px)] aspect-square bg-stone-50 dark:bg-stone-900 shadow-xl rounded-2xl md:rounded-3xl overflow-hidden border-2 md:border-4 border-stone-700 dark:border-stone-400"
         style={{ touchAction: 'none' }}
       >
         <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] bg-[url('https://www.transparenttextures.com/patterns/notebook.png')]"></div>
@@ -455,29 +456,29 @@ export default function DotsAndBoxesGame({
               animate={{ scale: 1, y: 0 }}
               className="text-center p-8"
             >
-              <h2 className="text-6xl md:text-7xl font-serif italic text-stone-800 dark:text-stone-100 mb-4 tracking-tighter">
+              <h2 className="text-4xl md:text-7xl font-serif italic text-stone-800 dark:text-stone-100 mb-4 tracking-tighter">
                 {winner === 'draw' ? 'Draw!' : `Player ${winner} Wins`}
               </h2>
-              <div className="text-2xl font-mono text-stone-500 dark:text-stone-400 mb-12 flex items-center justify-center gap-4">
+              <div className="text-xl md:text-2xl font-mono text-stone-500 dark:text-stone-400 mb-8 md:mb-12 flex items-center justify-center gap-4">
                 <span className={winner === 1 ? "text-blue-600 dark:text-blue-400 font-bold" : ""}>{scores[1]}</span>
                 <span className="text-stone-400 dark:text-stone-500">-</span>
                 <span className={winner === 2 ? "text-red-600 dark:text-red-400 font-bold" : ""}>{scores[2]}</span>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
                 <button 
                   onClick={handleRestart}
-                  className="px-8 py-4 rounded-xl bg-stone-800 dark:bg-stone-100 text-stone-50 dark:text-stone-800 font-medium hover:bg-stone-700 dark:hover:bg-stone-200 transition-colors flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform duration-200"
+                  className="px-6 md:px-8 py-3 md:py-4 rounded-xl bg-stone-800 dark:bg-stone-100 text-stone-50 dark:text-stone-800 font-medium hover:bg-stone-700 dark:hover:bg-stone-200 transition-colors flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform duration-200 text-sm md:text-base"
                 >
-                  <RefreshCw size={20} />
+                  <RefreshCw size={18} />
                   Play Again
                 </button>
                 
                 <button 
                   onClick={onMenu}
-                  className="px-8 py-4 rounded-xl bg-stone-50 dark:bg-stone-800 border-2 border-stone-300 dark:border-stone-600 text-stone-800 dark:text-stone-100 font-medium hover:border-stone-700 dark:hover:border-stone-400 transition-colors flex items-center justify-center gap-2"
+                  className="px-6 md:px-8 py-3 md:py-4 rounded-xl bg-stone-50 dark:bg-stone-800 border-2 border-stone-300 dark:border-stone-600 text-stone-800 dark:text-stone-100 font-medium hover:border-stone-700 dark:hover:border-stone-400 transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
                 >
-                  <Home size={20} />
+                  <Home size={18} />
                   Menu
                 </button>
               </div>

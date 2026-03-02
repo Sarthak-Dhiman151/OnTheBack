@@ -14,7 +14,7 @@ export default function GameHub({ onSelectGame }: GameHubProps) {
         transition={{ duration: 0.8 }}
         className="text-center mb-20"
       >
-        <h1 className="text-6xl md:text-8xl font-serif italic text-stone-800 dark:text-stone-100 mb-4 tracking-tighter">
+        <h1 className="text-5xl md:text-8xl font-serif italic text-stone-800 dark:text-stone-100 mb-4 tracking-tighter">
           Paper Games
         </h1>
         <p className="text-xl md:text-2xl text-stone-500 dark:text-stone-400 font-hand rotate-[-2deg]">

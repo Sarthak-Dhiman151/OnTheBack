@@ -3,6 +3,11 @@ import { createServer as createViteServer } from "vite";
 import { WebSocketServer, WebSocket } from "ws";
 import { GameEngine } from "./src/logic/GameEngine";
 import { GridConfig, Line } from "./src/shared/types";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = 3000;
 
@@ -29,7 +34,17 @@ async function startServer() {
   });
 
   // Setup WebSocket Server
-  const wss = new WebSocketServer({ server });
+  const wss = new WebSocketServer({ noServer: true });
+
+  server.on('upgrade', (request, socket, head) => {
+    const url = new URL(request.url || '', `http://${request.headers.host}`);
+    console.log(`Upgrade request for ${url.pathname}`);
+    if (url.pathname === '/ws') {
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit('connection', ws, request);
+      });
+    }
+  });
 
   wss.on('connection', (ws) => {
     let currentRoomId: string | null = null;
@@ -201,8 +216,11 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    // Production static serving (if needed)
-    app.use(express.static('dist'));
+    // Production static serving
+    app.use(express.static(path.resolve(__dirname, 'dist')));
+    app.get('*', (req, res) => {
+      res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+    });
   }
 }
 

@@ -60,7 +60,9 @@ export default function App() {
   const connectToServer = (config: GridConfig, count: number, joinRoomId?: string) => {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const host = window.location.host;
-      const ws = new WebSocket(`${protocol}//${host}`);
+      const wsUrl = `${protocol}//${host}/ws`;
+      console.log('Connecting to:', wsUrl);
+      const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -74,6 +76,7 @@ export default function App() {
 
       ws.onmessage = (event) => {
           const msg: ServerMessage = JSON.parse(event.data);
+          console.log('WS Message:', msg.type);
           
           if (msg.type === 'WELCOME') {
               setRoomId(msg.payload.roomId);
@@ -114,8 +117,8 @@ export default function App() {
           setGameState('menu');
       };
 
-      ws.onclose = () => {
-          console.log('Disconnected');
+      ws.onclose = (event) => {
+          console.log('Disconnected:', event.code, event.reason);
           if (gameState === 'connecting') {
              setGameState('menu');
           }

@@ -229,20 +229,7 @@ export default function DotsAndBoxesGame({
   }, [canvasSize, horizontalLines, verticalLines, boxes, hoveredLine, currentPlayer, winner, gridConfig, isOnline, playerId, theme]);
 
   // Interaction Logic
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (winner) return;
-    
-    if (isOnline && currentPlayer !== playerId) {
-        setHoveredLine(null);
-        return;
-    }
-    
-    const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
+  const getLineAtPosition = (x: number, y: number): Line | null => {
     const padding = canvasSize.width < 480 ? 20 : 40;
     const availWidth = canvasSize.width - padding * 2;
     const availHeight = canvasSize.height - padding * 2;
@@ -258,8 +245,7 @@ export default function DotsAndBoxesGame({
     const gridY = (y - offsetY) / spacing;
 
     if (gridX < -0.5 || gridX > gridConfig.cols - 0.5 || gridY < -0.5 || gridY > gridConfig.rows - 0.5) {
-      setHoveredLine(null);
-      return;
+      return null;
     }
 
     const cellR = Math.floor(gridY);
@@ -272,10 +258,9 @@ export default function DotsAndBoxesGame({
 
     const minDist = Math.min(distTop, distBottom, distLeft, distRight);
     
-    const threshold = canvasSize.width < 480 ? 0.4 : 0.3;
+    const threshold = canvasSize.width < 480 ? 0.45 : 0.3;
     if (minDist > threshold) {
-      setHoveredLine(null);
-      return;
+      return null;
     }
 
     let candidate: Line | null = null;
@@ -292,40 +277,63 @@ export default function DotsAndBoxesGame({
 
     if (candidate.type === 'horizontal') {
       if (candidate.r < 0 || candidate.r >= gridConfig.rows || candidate.c < 0 || candidate.c >= gridConfig.cols - 1) {
-        setHoveredLine(null);
-        return;
+        return null;
       }
       if (horizontalLines[candidate.r][candidate.c]) {
-        setHoveredLine(null);
-        return;
+        return null;
       }
     } else {
       if (candidate.r < 0 || candidate.r >= gridConfig.rows - 1 || candidate.c < 0 || candidate.c >= gridConfig.cols) {
-        setHoveredLine(null);
-        return;
+        return null;
       }
       if (verticalLines[candidate.r][candidate.c]) {
-        setHoveredLine(null);
-        return;
+        return null;
       }
     }
 
-    setHoveredLine(candidate);
+    return candidate;
   };
 
-  const handlePointerClick = () => {
-    if (!hoveredLine || winner) return;
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (winner) return;
+    
+    if (isOnline && currentPlayer !== playerId) {
+        setHoveredLine(null);
+        return;
+    }
+    
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const line = getLineAtPosition(x, y);
+    setHoveredLine(line);
+  };
+
+  const handlePointerClick = (e: React.PointerEvent) => {
+    if (winner) return;
+
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const line = getLineAtPosition(x, y);
+    if (!line) return;
     
     if (isOnline) {
         if (currentPlayer !== playerId) return;
         if (ws) {
-            ws.send(JSON.stringify({ type: 'MOVE', payload: hoveredLine }));
+            ws.send(JSON.stringify({ type: 'MOVE', payload: line }));
             setHoveredLine(null);
         }
         return;
     }
 
-    const { r, c, type } = hoveredLine;
+    const { r, c, type } = line;
     let boxCompleted = false;
     const newBoxes = [...boxes.map(row => [...row])];
 
@@ -442,6 +450,7 @@ export default function DotsAndBoxesGame({
           onPointerMove={handlePointerMove}
           onPointerDown={handlePointerClick}
           onPointerLeave={() => setHoveredLine(null)}
+          onContextMenu={(e) => e.preventDefault()}
         />
 
         {/* Winner Overlay */}

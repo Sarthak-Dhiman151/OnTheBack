@@ -5,9 +5,10 @@ import { GRIDS, GridConfig } from '../data/levels';
 
 interface MenuProps {
   onStart: (config: GridConfig, mode: 'local' | 'online', playerCount: number, roomId?: string) => void;
+  gameType: 'dots-and-boxes' | 'tic-tac-toe' | 'gomoku';
 }
 
-export default function Menu({ onStart }: MenuProps) {
+export default function Menu({ onStart, gameType }: MenuProps) {
   const [customRows, setCustomRows] = useState(4);
   const [customCols, setCustomCols] = useState(4);
   const [showCustom, setShowCustom] = useState(false);
@@ -16,10 +17,11 @@ export default function Menu({ onStart }: MenuProps) {
   const [playerCount, setPlayerCount] = useState(2);
 
   const handleStart = (config: GridConfig) => {
+     const finalConfig = { ...config, gameType };
      if (mode === 'online') {
-         onStart(config, 'online', playerCount);
+         onStart(finalConfig, 'online', playerCount);
      } else {
-         onStart(config, 'local', playerCount);
+         onStart(finalConfig, 'local', playerCount);
      }
   };
 
@@ -82,22 +84,24 @@ export default function Menu({ onStart }: MenuProps) {
         </div>
 
         {/* Player Count Selector */}
-        <div className="flex items-center gap-3 bg-stone-50 dark:bg-stone-800 px-4 py-2 rounded-full border border-stone-300 dark:border-stone-600 shadow-sm">
-            <span className="text-xs font-mono uppercase tracking-widest text-stone-500 dark:text-stone-400">Players</span>
-            {[2, 3, 4].map(count => (
-                <button
-                    key={count}
-                    onClick={() => setPlayerCount(count)}
-                    className={`w-8 h-8 rounded-full text-sm font-bold transition-all ${
-                        playerCount === count 
-                        ? 'bg-stone-800 dark:bg-stone-100 text-stone-50 dark:text-stone-800 shadow-sm' 
-                        : 'text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700'
-                    }`}
-                >
-                    {count}
-                </button>
-            ))}
-        </div>
+        {gameType === 'dots-and-boxes' && (
+            <div className="flex items-center gap-3 bg-stone-50 dark:bg-stone-800 px-4 py-2 rounded-full border border-stone-300 dark:border-stone-600 shadow-sm">
+                <span className="text-xs font-mono uppercase tracking-widest text-stone-500 dark:text-stone-400">Players</span>
+                {[2, 3, 4].map(count => (
+                    <button
+                        key={count}
+                        onClick={() => setPlayerCount(count)}
+                        className={`w-8 h-8 rounded-full text-sm font-bold transition-all ${
+                            playerCount === count 
+                            ? 'bg-stone-800 dark:bg-stone-100 text-stone-50 dark:text-stone-800 shadow-sm' 
+                            : 'text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700'
+                        }`}
+                    >
+                        {count}
+                    </button>
+                ))}
+            </div>
+        )}
       </div>
 
       <div className="w-full max-w-3xl">
@@ -135,76 +139,92 @@ export default function Menu({ onStart }: MenuProps) {
             </motion.div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {GRIDS.map((grid, index) => (
-            <motion.button
-                key={grid.id}
-                whileHover={{ y: -4 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleStart(grid)}
-                className="group relative bg-stone-50 dark:bg-stone-800 p-8 rounded-2xl border border-stone-300 dark:border-stone-600 shadow-sm hover:shadow-xl hover:border-stone-700 dark:hover:border-stone-300 transition-all flex flex-col items-center gap-6 text-center"
-            >
-                <div className="w-16 h-16 rounded-full bg-stone-200 dark:bg-stone-700 flex items-center justify-center text-stone-500 dark:text-stone-400 group-hover:bg-stone-800 dark:group-hover:bg-stone-100 group-hover:text-stone-50 dark:group-hover:text-stone-800 transition-colors duration-300">
-                {index === 0 && <Grid3x3 size={28} />}
-                {index === 1 && <Grid size={28} />}
-                {index === 2 && <LayoutGrid size={28} />}
-                </div>
-                <div>
-                <h3 className="font-serif italic text-2xl text-stone-800 dark:text-stone-100 mb-1">{grid.name.split(' ')[0]}</h3>
-                <p className="text-xs font-mono text-stone-500 dark:text-stone-400 uppercase tracking-wider">{grid.rows} × {grid.cols}</p>
-                </div>
-            </motion.button>
-            ))}
-        </div>
-
-        {/* Custom Grid Toggle */}
-        <div className="w-full">
-            <button 
-            onClick={() => setShowCustom(!showCustom)}
-            className="flex items-center justify-center gap-2 text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 transition-colors mx-auto mb-6 text-sm font-medium"
-            >
-            <Settings2 size={16} />
-            {showCustom ? 'Hide Custom Options' : 'Custom Grid Size'}
-            </button>
-
-            {showCustom && (
-            <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-600 rounded-2xl p-6 md:p-8 shadow-sm max-w-lg mx-auto"
-            >
-                <div className="flex flex-col items-center gap-6 md:gap-8">
-                <div className="flex items-center gap-6 md:gap-8">
-                    <div className="flex flex-col items-center gap-2">
-                    <label className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase tracking-widest">Rows</label>
-                    <div className="flex items-center gap-2 md:gap-3">
-                        <button onClick={() => setCustomRows(Math.max(2, customRows - 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">-</button>
-                        <span className="font-serif text-xl md:text-2xl w-6 md:w-8 text-center text-stone-800 dark:text-stone-100">{customRows}</span>
-                        <button onClick={() => setCustomRows(Math.min(12, customRows + 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">+</button>
-                    </div>
-                    </div>
-                    <span className="text-stone-300 dark:text-stone-600 text-3xl md:text-4xl font-light">×</span>
-                    <div className="flex flex-col items-center gap-2">
-                    <label className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase tracking-widest">Cols</label>
-                    <div className="flex items-center gap-2 md:gap-3">
-                        <button onClick={() => setCustomCols(Math.max(2, customCols - 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">-</button>
-                        <span className="font-serif text-xl md:text-2xl w-6 md:w-8 text-center text-stone-800 dark:text-stone-100">{customCols}</span>
-                        <button onClick={() => setCustomCols(Math.min(12, customCols + 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">+</button>
-                    </div>
-                    </div>
+        {gameType === 'dots-and-boxes' ? (
+            <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    {GRIDS.map((grid, index) => (
+                    <motion.button
+                        key={grid.id}
+                        whileHover={{ y: -4 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleStart(grid)}
+                        className="group relative bg-stone-50 dark:bg-stone-800 p-8 rounded-2xl border border-stone-300 dark:border-stone-600 shadow-sm hover:shadow-xl hover:border-stone-700 dark:hover:border-stone-300 transition-all flex flex-col items-center gap-6 text-center"
+                    >
+                        <div className="w-16 h-16 rounded-full bg-stone-200 dark:bg-stone-700 flex items-center justify-center text-stone-500 dark:text-stone-400 group-hover:bg-stone-800 dark:group-hover:bg-stone-100 group-hover:text-stone-50 dark:group-hover:text-stone-800 transition-colors duration-300">
+                        {index === 0 && <Grid3x3 size={28} />}
+                        {index === 1 && <Grid size={28} />}
+                        {index === 2 && <LayoutGrid size={28} />}
+                        </div>
+                        <div>
+                        <h3 className="font-serif italic text-2xl text-stone-800 dark:text-stone-100 mb-1">{grid.name.split(' ')[0]}</h3>
+                        <p className="text-xs font-mono text-stone-500 dark:text-stone-400 uppercase tracking-wider">{grid.rows} × {grid.cols}</p>
+                        </div>
+                    </motion.button>
+                    ))}
                 </div>
 
-                <button
-                    onClick={handleCustomStart}
-                    className="w-full py-4 bg-stone-800 dark:bg-stone-100 text-stone-50 dark:text-stone-800 rounded-xl font-medium hover:bg-stone-700 dark:hover:bg-stone-200 transition-colors flex items-center justify-center gap-2"
+                {/* Custom Grid Toggle */}
+                <div className="w-full">
+                    <button 
+                    onClick={() => setShowCustom(!showCustom)}
+                    className="flex items-center justify-center gap-2 text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 transition-colors mx-auto mb-6 text-sm font-medium"
+                    >
+                    <Settings2 size={16} />
+                    {showCustom ? 'Hide Custom Options' : 'Custom Grid Size'}
+                    </button>
+
+                    {showCustom && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-600 rounded-2xl p-6 md:p-8 shadow-sm max-w-lg mx-auto"
+                    >
+                        <div className="flex flex-col items-center gap-6 md:gap-8">
+                        <div className="flex items-center gap-6 md:gap-8">
+                            <div className="flex flex-col items-center gap-2">
+                            <label className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase tracking-widest">Rows</label>
+                            <div className="flex items-center gap-2 md:gap-3">
+                                <button onClick={() => setCustomRows(Math.max(2, customRows - 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">-</button>
+                                <span className="font-serif text-xl md:text-2xl w-6 md:w-8 text-center text-stone-800 dark:text-stone-100">{customRows}</span>
+                                <button onClick={() => setCustomRows(Math.min(12, customRows + 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">+</button>
+                            </div>
+                            </div>
+                            <span className="text-stone-300 dark:text-stone-600 text-3xl md:text-4xl font-light">×</span>
+                            <div className="flex flex-col items-center gap-2">
+                            <label className="text-[10px] font-mono text-stone-500 dark:text-stone-400 uppercase tracking-widest">Cols</label>
+                            <div className="flex items-center gap-2 md:gap-3">
+                                <button onClick={() => setCustomCols(Math.max(2, customCols - 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">-</button>
+                                <span className="font-serif text-xl md:text-2xl w-6 md:w-8 text-center text-stone-800 dark:text-stone-100">{customCols}</span>
+                                <button onClick={() => setCustomCols(Math.min(12, customCols + 1))} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors">+</button>
+                            </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={handleCustomStart}
+                            className="w-full py-4 bg-stone-800 dark:bg-stone-100 text-stone-50 dark:text-stone-800 rounded-xl font-medium hover:bg-stone-700 dark:hover:bg-stone-200 transition-colors flex items-center justify-center gap-2"
+                        >
+                            Start Custom Game
+                            <Play size={16} fill="currentColor" />
+                        </button>
+                        </div>
+                    </motion.div>
+                    )}
+                </div>
+            </>
+        ) : (
+            <div className="flex flex-col items-center">
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleStart({ id: 'ttt', name: 'Tic Tac Toe', rows: 3, cols: 3 })}
+                    className="px-12 py-6 bg-stone-800 dark:bg-stone-100 text-stone-50 dark:text-stone-800 rounded-2xl font-bold text-2xl shadow-xl hover:shadow-2xl transition-all flex items-center gap-4"
                 >
-                    Start Custom Game
-                    <Play size={16} fill="currentColor" />
-                </button>
-                </div>
-            </motion.div>
-            )}
-        </div>
+                    Start Game
+                    <Play size={24} fill="currentColor" />
+                </motion.button>
+            </div>
+        )}
       </div>
     </div>
   );

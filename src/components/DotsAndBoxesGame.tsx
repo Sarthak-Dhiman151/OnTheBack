@@ -60,12 +60,14 @@ export default function DotsAndBoxesGame({
   }, [gridConfig, initialState, playerCount]);
 
   const applyState = (state: GameState) => {
-    setHorizontalLines(state.horizontalLines);
-    setVerticalLines(state.verticalLines);
-    setBoxes(state.boxes);
-    setCurrentPlayer(state.currentPlayer);
-    setScores(state.scores);
-    setWinner(state.winner);
+    if (state.dotsAndBoxes) {
+      setHorizontalLines(state.dotsAndBoxes.horizontalLines);
+      setVerticalLines(state.dotsAndBoxes.verticalLines);
+      setBoxes(state.dotsAndBoxes.boxes);
+      setCurrentPlayer(state.currentPlayer);
+      setScores(state.dotsAndBoxes.scores);
+      setWinner(state.winner);
+    }
   };
 
   const resetGame = () => {

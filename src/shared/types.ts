@@ -1,8 +1,11 @@
+export type GameType = 'dots-and-boxes' | 'tic-tac-toe' | 'gomoku';
+
 export interface GridConfig {
   id: string;
   name: string;
   rows: number;
   cols: number;
+  gameType?: GameType;
 }
 
 export type Player = number;
@@ -14,15 +17,30 @@ export interface Line {
   type: LineType;
 }
 
-export interface GameState {
-  config: GridConfig;
-  playerCount: number;
+export interface DotsAndBoxesState {
   horizontalLines: boolean[][];
   verticalLines: boolean[][];
   boxes: (Player | null)[][];
-  currentPlayer: Player;
   scores: Record<number, number>;
+}
+
+export interface TicTacToeState {
+  board: (Player | null)[][];
+}
+
+export interface GomokuState {
+  board: (Player | null)[][];
+}
+
+export interface GameState {
+  gameType: GameType;
+  config: GridConfig;
+  playerCount: number;
+  currentPlayer: Player;
   winner: Player | 'draw' | null;
+  dotsAndBoxes?: DotsAndBoxesState;
+  ticTacToe?: TicTacToeState;
+  gomoku?: GomokuState;
 }
 
 export interface ServerMessage {

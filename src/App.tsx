@@ -6,6 +6,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { GRIDS, GridConfig } from './data/levels';
 import DotsAndBoxesGame from './components/DotsAndBoxesGame';
+import TicTacToeGame from './components/TicTacToeGame';
+import GomokuGame from './components/GomokuGame';
 import Menu from './components/Menu';
 import GameHub from './components/GameHub';
 import { motion, AnimatePresence } from 'motion/react';
@@ -14,6 +16,7 @@ import { ArrowLeft, Moon, Sun } from 'lucide-react';
 
 export default function App() {
   const [gameState, setGameState] = useState<'hub' | 'menu' | 'playing' | 'connecting'>('hub');
+  const [gameType, setGameType] = useState<'dots-and-boxes' | 'tic-tac-toe' | 'gomoku'>('dots-and-boxes');
   const [currentGridConfig, setCurrentGridConfig] = useState<GridConfig>(GRIDS[0]);
   const [playerCount, setPlayerCount] = useState(2);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -39,6 +42,13 @@ export default function App() {
 
   const handleSelectGame = (gameId: string) => {
     if (gameId === 'dots-and-boxes') {
+      setGameType('dots-and-boxes');
+      setGameState('menu');
+    } else if (gameId === 'tic-tac-toe') {
+      setGameType('tic-tac-toe');
+      setGameState('menu');
+    } else if (gameId === 'gomoku') {
+      setGameType('gomoku');
       setGameState('menu');
     }
   };
@@ -85,6 +95,7 @@ export default function App() {
                   setServerState(msg.payload.state);
                   setCurrentGridConfig(msg.payload.state.config);
                   setPlayerCount(msg.payload.state.playerCount);
+                  setGameType(msg.payload.state.gameType);
               }
               setGameState('playing');
           }
@@ -194,7 +205,7 @@ export default function App() {
               exit={{ opacity: 0 }}
               className="w-full"
             >
-              <Menu onStart={handleStart} />
+              <Menu onStart={handleStart} gameType={gameType} />
             </motion.div>
           ) : gameState === 'connecting' ? (
              <motion.div 
@@ -215,18 +226,42 @@ export default function App() {
               exit={{ opacity: 0, scale: 1.05 }}
               className="w-full h-full flex flex-col items-center justify-center"
             >
-              <DotsAndBoxesGame 
-                gridConfig={currentGridConfig} 
-                onComplete={handleGameComplete}
-                onMenu={handleMenu}
-                isOnline={isOnline}
-                roomId={roomId}
-                playerId={playerId}
-                initialState={serverState}
-                ws={wsRef.current}
-                playerCount={playerCount}
-                theme={theme}
-              />
+              {gameType === 'dots-and-boxes' ? (
+                <DotsAndBoxesGame 
+                  gridConfig={currentGridConfig} 
+                  onComplete={handleGameComplete}
+                  onMenu={handleMenu}
+                  isOnline={isOnline}
+                  roomId={roomId}
+                  playerId={playerId}
+                  initialState={serverState}
+                  ws={wsRef.current}
+                  playerCount={playerCount}
+                  theme={theme}
+                />
+              ) : gameType === 'tic-tac-toe' ? (
+                <TicTacToeGame 
+                  onComplete={handleGameComplete}
+                  onMenu={handleMenu}
+                  isOnline={isOnline}
+                  roomId={roomId}
+                  playerId={playerId}
+                  initialState={serverState}
+                  ws={wsRef.current}
+                  theme={theme}
+                />
+              ) : (
+                <GomokuGame 
+                  onComplete={handleGameComplete}
+                  onMenu={handleMenu}
+                  isOnline={isOnline}
+                  roomId={roomId}
+                  playerId={playerId}
+                  initialState={serverState}
+                  ws={wsRef.current}
+                  theme={theme}
+                />
+              )}
             </motion.div>
           )}
         </AnimatePresence>

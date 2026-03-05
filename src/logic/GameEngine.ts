@@ -14,31 +14,36 @@ export class GameEngine {
     }
 
     return {
+      gameType: 'dots-and-boxes',
       config,
       playerCount,
-      horizontalLines: Array(config.rows).fill(null).map(() => Array(config.cols - 1).fill(false)),
-      verticalLines: Array(config.rows - 1).fill(null).map(() => Array(config.cols).fill(false)),
-      boxes: Array(config.rows - 1).fill(null).map(() => Array(config.cols - 1).fill(null)),
       currentPlayer: 1,
-      scores,
       winner: null,
+      dotsAndBoxes: {
+        horizontalLines: Array(config.rows).fill(null).map(() => Array(config.cols - 1).fill(false)),
+        verticalLines: Array(config.rows - 1).fill(null).map(() => Array(config.cols).fill(false)),
+        boxes: Array(config.rows - 1).fill(null).map(() => Array(config.cols - 1).fill(null)),
+        scores,
+      }
     };
   }
 
-  public applyMove(line: Line, player: Player): boolean {
+  public applyMove(move: any, player: Player): boolean {
+    const line = move as Line;
     // Validate move
     if (this.state.winner) return false;
     if (player !== this.state.currentPlayer) return false;
+    if (!this.state.dotsAndBoxes) return false;
 
     const { r, c, type } = line;
     
     // Check bounds and if already taken
     if (type === 'horizontal') {
-      if (this.state.horizontalLines[r][c]) return false;
-      this.state.horizontalLines[r][c] = true;
+      if (this.state.dotsAndBoxes.horizontalLines[r][c]) return false;
+      this.state.dotsAndBoxes.horizontalLines[r][c] = true;
     } else {
-      if (this.state.verticalLines[r][c]) return false;
-      this.state.verticalLines[r][c] = true;
+      if (this.state.dotsAndBoxes.verticalLines[r][c]) return false;
+      this.state.dotsAndBoxes.verticalLines[r][c] = true;
     }
 
     // Check for completed boxes
@@ -49,22 +54,22 @@ export class GameEngine {
       // Check Box Above: row r-1, col c
       if (r > 0) {
         if (
-          this.state.horizontalLines[r-1][c] && 
-          this.state.verticalLines[r-1][c] && 
-          this.state.verticalLines[r-1][c+1]
+          this.state.dotsAndBoxes.horizontalLines[r-1][c] && 
+          this.state.dotsAndBoxes.verticalLines[r-1][c] && 
+          this.state.dotsAndBoxes.verticalLines[r-1][c+1]
         ) {
-          this.state.boxes[r-1][c] = player;
+          this.state.dotsAndBoxes.boxes[r-1][c] = player;
           boxCompleted = true;
         }
       }
       // Check Box Below: row r, col c
       if (r < rows - 1) {
         if (
-          this.state.horizontalLines[r+1][c] && 
-          this.state.verticalLines[r][c] && 
-          this.state.verticalLines[r][c+1]
+          this.state.dotsAndBoxes.horizontalLines[r+1][c] && 
+          this.state.dotsAndBoxes.verticalLines[r][c] && 
+          this.state.dotsAndBoxes.verticalLines[r][c+1]
         ) {
-          this.state.boxes[r][c] = player;
+          this.state.dotsAndBoxes.boxes[r][c] = player;
           boxCompleted = true;
         }
       }
@@ -72,22 +77,22 @@ export class GameEngine {
       // Check Box Left: row r, col c-1
       if (c > 0) {
         if (
-          this.state.verticalLines[r][c-1] && 
-          this.state.horizontalLines[r][c-1] && 
-          this.state.horizontalLines[r+1][c-1]
+          this.state.dotsAndBoxes.verticalLines[r][c-1] && 
+          this.state.dotsAndBoxes.horizontalLines[r][c-1] && 
+          this.state.dotsAndBoxes.horizontalLines[r+1][c-1]
         ) {
-          this.state.boxes[r][c-1] = player;
+          this.state.dotsAndBoxes.boxes[r][c-1] = player;
           boxCompleted = true;
         }
       }
       // Check Box Right: row r, col c
       if (c < cols - 1) {
         if (
-          this.state.verticalLines[r][c+1] && 
-          this.state.horizontalLines[r][c] && 
-          this.state.horizontalLines[r+1][c]
+          this.state.dotsAndBoxes.verticalLines[r][c+1] && 
+          this.state.dotsAndBoxes.horizontalLines[r][c] && 
+          this.state.dotsAndBoxes.horizontalLines[r+1][c]
         ) {
-          this.state.boxes[r][c] = player;
+          this.state.dotsAndBoxes.boxes[r][c] = player;
           boxCompleted = true;
         }
       }
@@ -95,18 +100,18 @@ export class GameEngine {
 
     // Update Scores
     if (boxCompleted) {
-      const newScores = { ...this.state.scores };
+      const newScores = { ...this.state.dotsAndBoxes.scores };
       
       // Reset scores to 0 and recalculate from boxes
       for (let i = 1; i <= this.state.playerCount; i++) {
           newScores[i] = 0;
       }
       
-      this.state.boxes.forEach(row => row.forEach(owner => {
+      this.state.dotsAndBoxes.boxes.forEach(row => row.forEach(owner => {
         if (owner) newScores[owner]++;
       }));
       
-      this.state.scores = newScores;
+      this.state.dotsAndBoxes.scores = newScores;
 
       // Check Win
       const totalBoxes = (rows - 1) * (cols - 1);

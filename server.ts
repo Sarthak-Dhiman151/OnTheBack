@@ -2,7 +2,9 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import { WebSocketServer, WebSocket } from "ws";
 import { GameEngine } from "./src/logic/GameEngine";
-import { GridConfig, Line } from "./src/shared/types";
+import { TicTacToeEngine } from "./src/logic/TicTacToeEngine";
+import { GomokuEngine } from "./src/logic/GomokuEngine";
+import { GridConfig, GameType } from "./src/shared/types";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -11,14 +13,29 @@ const __dirname = path.dirname(__filename);
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 
+interface IGameEngine {
+  state: any;
+  applyMove(move: any, player: number): boolean;
+}
+
 interface Room {
   id: string;
-  engine: GameEngine;
+  engine: IGameEngine;
   players: Record<number, WebSocket | null>;
   spectators: WebSocket[];
 }
 
 const rooms = new Map<string, Room>();
+
+function createEngine(config: GridConfig, playerCount: number): IGameEngine {
+    if (config.gameType === 'tic-tac-toe') {
+        return new TicTacToeEngine(config, playerCount);
+    }
+    if (config.gameType === 'gomoku') {
+        return new GomokuEngine(config, playerCount);
+    }
+    return new GameEngine(config, playerCount);
+}
 
 async function startServer() {
   const app = express();
@@ -59,7 +76,7 @@ async function startServer() {
           const playerCount: number = data.payload.playerCount || 2;
           const roomId = Math.random().toString(36).substring(2, 6).toUpperCase();
           
-          const engine = new GameEngine(config, playerCount);
+          const engine = createEngine(config, playerCount);
           
           const players: Record<number, WebSocket | null> = {};
           for (let i = 1; i <= playerCount; i++) {
@@ -142,10 +159,10 @@ async function startServer() {
           const room = rooms.get(currentRoomId);
           if (!room) return;
 
-          const line: Line = data.payload;
-          console.log(`Move in room ${currentRoomId} by P${currentPlayerId}:`, line);
+          const move = data.payload;
+          console.log(`Move in room ${currentRoomId} by P${currentPlayerId}:`, move);
           
-          const success = room.engine.applyMove(line, currentPlayerId);
+          const success = room.engine.applyMove(move, currentPlayerId);
 
           if (success) {
             const updateMsg = JSON.stringify({
@@ -167,7 +184,7 @@ async function startServer() {
              if (!room) return;
              
              // Reset engine
-             room.engine = new GameEngine(room.engine.state.config, room.engine.state.playerCount);
+             room.engine = createEngine(room.engine.state.config, room.engine.state.playerCount);
              
              const updateMsg = JSON.stringify({
                 type: 'GAME_UPDATE',
